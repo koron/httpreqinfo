@@ -3,14 +3,20 @@ package main
 import (
 	"crypto/md5"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 )
 
+var addr string
+
 func main() {
-	log.Fatal(http.ListenAndServe(":8000", http.HandlerFunc(handle)))
+	flag.StringVar(&addr, "addr", ":8000", `listen address`)
+	flag.Parse()
+	log.Printf("listen on %s", addr)
+	log.Fatal(http.ListenAndServe(addr, http.HandlerFunc(handle)))
 }
 
 type Request struct {
@@ -77,4 +83,5 @@ func handle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
+	log.Print(string(b))
 }
