@@ -6,16 +6,26 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
 
-var addr string
+var (
+	addr   string
+	silent bool
+	out    = log.New(os.Stderr, "", log.LstdFlags)
+)
 
 func main() {
 	flag.StringVar(&addr, "addr", ":8000", `listen address`)
+	flag.BoolVar(&silent, "silent", false, `suppress any outputs`)
 	flag.Parse()
-	log.Printf("listen on %s", addr)
+	if silent {
+		out = log.New(ioutil.Discard, "", 0)
+	}
+	out.Printf("listen on %s", addr)
 	log.Fatal(http.ListenAndServe(addr, http.HandlerFunc(handle)))
 }
 
@@ -83,5 +93,5 @@ func handle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
-	log.Print(string(b))
+	out.Print(string(b))
 }
