@@ -1,0 +1,4 @@
+github.com/koron-go/ctxsrv v1.0.0 h1:XjSScwJGtkJjZ9UZilHkxdTAAsd9Tk6P4+hx0AcS8VI=
+github.com/koron-go/ctxsrv v1.0.0/go.mod h1:JCpnysh/b7EGePGkdVsFl8GJopf2w2YsIS822K0XTx0=
+github.com/koron-go/sigctx v1.0.1 h1:BELVml5dbXNbdAnYn9dbrrJjAUdWRc3hCbGrQJ3qPuQ=
+github.com/koron-go/sigctx v1.0.1/go.mod h1:rNhEe0ZABGojjJzSbYS6levYvsW7ccrooc2rFSDW8U8=
