@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/json"
 	"flag"
@@ -10,6 +11,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"syscall"
+
+	"github.com/koron-go/ctxsrv"
+	"github.com/koron-go/sigctx"
 )
 
 var (
@@ -26,7 +31,24 @@ func main() {
 		out = log.New(ioutil.Discard, "", 0)
 	}
 	out.Printf("listen on %s", addr)
-	log.Fatal(http.ListenAndServe(addr, http.HandlerFunc(handle)))
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: http.HandlerFunc(handle),
+	}
+	cfg := ctxsrv.HTTP(srv).
+		WithDoneServer(func() {
+			log.Println("done server")
+		}).
+		WithDoneContext(func() {
+			log.Println("done context")
+		})
+	ctx, cancel := sigctx.WithCancelSignal(context.Background(),
+		os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+	err := ctxsrv.Serve(ctx, *cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 type Request struct {
