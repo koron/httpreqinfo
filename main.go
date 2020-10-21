@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"syscall"
 
@@ -20,12 +21,14 @@ import (
 var (
 	addr   string
 	silent bool
+	dump   bool
 	out    = log.New(os.Stderr, "", log.LstdFlags)
 )
 
 func main() {
 	flag.StringVar(&addr, "addr", ":8000", `listen address`)
 	flag.BoolVar(&silent, "silent", false, `suppress any outputs`)
+	flag.BoolVar(&dump, "dump", false, `dump received requests`)
 	flag.Parse()
 	if silent {
 		out = log.New(ioutil.Discard, "", 0)
@@ -89,6 +92,14 @@ func procBody(src io.ReadCloser) (hash string, size int64, err error) {
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
+	if dump {
+		b, err := httputil.DumpRequest(r, false)
+		if err != nil {
+			log.Printf("failed to dump: %s", err)
+		} else {
+			log.Print("dump:{{{\n", string(b), "}}}:dump")
+		}
+	}
 	v := &Request{
 		Method:           r.Method,
 		URL:              r.URL.String(),
